@@ -40,6 +40,7 @@ const (
 	DefaultWordsPerMinute = 300
 )
 
+// NewReadTime 实例化ReadTime
 func NewReadTime() *ReadTime {
 	return &ReadTime{
 		WordsCount: WordsCount{
@@ -56,16 +57,19 @@ func NewReadTime() *ReadTime {
 	}
 }
 
+// SetMinutes 设置时间
 func (rt *ReadTime) SetMinutes() *ReadTime {
 	rt.Minutes = rt.GetMinutes()
 	return rt
 }
 
+// SetWordsPerMinute 设置每分钟阅读文字数
 func (rt *ReadTime) SetWordsPerMinute(words int) *ReadTime {
 	rt.WordsPerMinute = words
 	return rt
 }
 
+// SetTranslation 设置语言
 func (rt *ReadTime) SetTranslation(key string) *ReadTime {
 	if _, ok := Trans[key]; !ok || key == "" {
 		return rt
@@ -74,17 +78,18 @@ func (rt *ReadTime) SetTranslation(key string) *ReadTime {
 	return rt
 }
 
-func (rt *ReadTime) ReadFile(filename string) *ReadTime {
+// ReadFile 直接读取文件
+func (rt *ReadTime) ReadFile(filename string) (*ReadTime, error) {
 	bytes, err := os.ReadFile(filename)
 	if err != nil {
-		return nil
+		return rt, err
 	}
-	rt.ReadStr(string(bytes))
-	return rt
+	rt.Read(string(bytes))
+	return rt, nil
 }
 
-// Stat
-func (rt *ReadTime) ReadStr(str string) *ReadTime {
+// Read 读取字符串，获取总字数
+func (rt *ReadTime) Read(str string) *ReadTime {
 	rt.WordsCount.Links = len(rxStrict.FindAllString(str, -1))
 	rt.WordsCount.Pics = len(imgReg.FindAllString(str, -1))
 
@@ -119,33 +124,38 @@ func (rt *ReadTime) ReadStr(str string) *ReadTime {
 	return rt
 }
 
-// 计算阅读时间
+// GetMinutes 计算阅读时间
 func (rt *ReadTime) GetMinutes() int {
 	x := float64(rt.WordsCount.Total / rt.WordsPerMinute)
 	minutes := Round(x)
-	if minutes < 1 {
+	if minutes <= 1 {
 		return 1
 	}
 	return minutes
 }
 
-func (rt *ReadTime) ToMap() map[string]interface{} {
+// ToMap 获取ReadTime的map数据
+func (rt *ReadTime) ToMap() (map[string]interface{}, error) {
 	rt.SetMinutes()
 	ret := make(map[string]interface{})
 
 	err := mapstructure.Decode(rt, &ret)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return ret
+	return ret, nil
 }
 
-func (rt *ReadTime) ToJSON() string {
-	toMap := rt.ToMap()
+// ToJSON 获取ReadTime的JSON串
+func (rt *ReadTime) ToJSON() (string, error) {
+	toMap, err := rt.ToMap()
+	if err != nil {
+		return "", err
+	}
 	bytes, err := json.Marshal(toMap)
 	if err != nil {
-		return ""
+		return "", err
 	}
 
-	return string(bytes)
+	return string(bytes), nil
 }
