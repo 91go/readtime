@@ -1,6 +1,7 @@
-package wordscount
+package readtime
 
 import (
+	"math"
 	"regexp"
 	"strings"
 	"unicode"
@@ -8,50 +9,6 @@ import (
 
 	"mvdan.cc/xurls/v2"
 )
-
-type Counter struct {
-	Total     int // 总字数 = Words + Puncts
-	Words     int // 只包含字符数
-	Puncts    int // 标点数
-	Links     int // 链接数
-	Pics      int // 图片数
-	CodeLines int // 代码行数
-}
-
-func (wc *Counter) Stat(str string) {
-	wc.Links = len(rxStrict.FindAllString(str, -1))
-	wc.Pics = len(imgReg.FindAllString(str, -1))
-
-	// 剔除 HTML
-	str = StripHTML(str)
-
-	str = AutoSpace(str)
-
-	// 普通的链接去除（非 HTML 标签链接）
-	str = rxStrict.ReplaceAllString(str, " ")
-	plainWords := strings.Fields(str)
-
-	for _, plainWord := range plainWords {
-		words := strings.FieldsFunc(plainWord, func(r rune) bool {
-			if unicode.IsPunct(r) {
-				wc.Puncts++
-				return true
-			}
-			return false
-		})
-
-		for _, word := range words {
-			runeCount := utf8.RuneCountInString(word)
-			if len(word) == runeCount {
-				wc.Words++
-			} else {
-				wc.Words += runeCount
-			}
-		}
-	}
-
-	wc.Total = wc.Words + wc.Puncts
-}
 
 // AutoSpace 自动给中英文之间加上空格
 func AutoSpace(str string) string {
@@ -65,7 +22,7 @@ func AutoSpace(str string) string {
 }
 
 func addSpaceAtBoundary(prefix string, nextChar rune) string {
-	if len(prefix) == 0 {
+	if prefix == "" {
 		return string(nextChar)
 	}
 
@@ -116,7 +73,6 @@ func StripHTML(s string) string {
 		}
 
 		wasSpace = isSpace
-
 	}
 	return b.String()
 }
@@ -127,4 +83,8 @@ func isLatin(size int) bool {
 
 func isAllowSpace(r rune) bool {
 	return !unicode.IsSpace(r) && !unicode.IsPunct(r)
+}
+
+func Round(x float64) int {
+	return int(math.Floor(x + 0.5))
 }

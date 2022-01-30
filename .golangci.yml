@@ -1,0 +1,196 @@
+# [Configuration | golangci-lint](https://golangci-lint.run/usage/configuration/)
+linters:
+  disable-all: true
+  enable:
+    - bodyclose # 对 HTTP 响应是否 close 成功检测
+    - deadcode # 发现没有使用的代码
+    - depguard
+    - dogsled
+    - dupl # 代码克隆监测工具
+    - errcheck # 用于检查有error返回的函数，却没有做判断检查
+    - exportloopref # 查看变量作用域，WARN [runner] The linter 'scopelint' is deprecated (since v1.39.0) due to: The repository of the linter has been deprecated by the owner.  Replaced by exportloopref.
+    - exhaustive # 检查枚举switch语句的覆盖率
+    - funlen # 检查长函数的linter，用来检查行数，默认限制60行和40个statement
+    - goconst # 查找重复的字符串，这些字符串可以抽取成常量
+    - gocritic
+    - gocyclo # 用来检查函数的复杂度
+    - gofmt # 检测代码是否都已经格式化, 默认情况下使用 -s 来检查代码是否简化
+    - goimports # 做所有 gofmt 做的事. 此外还检查未使用的导入
+    - goprintffuncname
+    - gosec
+    - gosimple # 用来检测代码是否还有可以简化的地方
+    - govet # (vet, vetshadow): 检查go源代码并报告可疑结构，例如 Printf 调用，其参数与格式字符串不一致 # 用`vet`做变量覆盖检测，比如变量赋值、函数传参、函数返回值、遍历数据、struct初始化等场景，可以检查是否有读写锁隐式复制的情况(vet包含在golang默认工具套件)
+    - ineffassign # 检测是否有未使用的代码、变量、常量、类型、结构体、函数、函数参数等
+    - lll
+    - misspell # 查找单词拼写错误
+    - nakedret
+    - nolintlint
+    - rowserrcheck
+    - staticcheck # 提供了巨多的静态检查，检查bug，分析性能等
+    - structcheck # 发现未使用的结构体字段
+    - stylecheck
+    - typecheck # 对 go 代码进行解析和类型检查
+    - unconvert
+    - unparam
+    - unused # 检查未使用的常量，变量，函数和类型
+    - varcheck # 查找未使用的全局变量和常量
+    - whitespace
+    - gomnd
+    - revive # 打印出 go 代码的格式错误，WARN [runner] The linter 'golint' is deprecated (since v1.41.0) due to: The repository of the linter has been archived by the owner.  Replaced by revive. # 检查是否有死锁的静态检测工具
+#    - gochecknoglobals # 检查 go 代码中是否存在全局变量
+    - exhaustivestruct # 检查struct的字段是否都已初始化
+    - gochecknoinits # 检查init函数
+    - noctx # [sonatard/noctx: noctx finds sending http request without context.Context.](https://github.com/sonatard/noctx)
+
+
+  # don't enable:
+  # - asciicheck
+  # - scopelint
+  # - gocognit
+  # - godot
+  # - godox
+  # - goerr113
+  # - interfacer
+  # - maligned # 已废弃, 用govet的fieldalignment代替
+  # - nestif
+  # - prealloc
+  # - testpackage
+  # - sqlrows # 检查使用`*sql.Rows`时的一些错误
+  # - wsl
+
+linters-settings:
+  depguard:
+    list-type: blacklist
+    packages:
+      # logging is allowed only by logutils.Log, logrus
+      # is allowed to use only in logutils package
+      - github.com/sirupsen/logrus
+    packages-with-error-message:
+      # specify an error message to output when a blacklisted package is used
+      - github.com/sirupsen/logrus: "logging is allowed only by logutils.Log"
+  dupl:
+    threshold: 100
+  funlen:
+    lines: 100
+    statements: 50
+  gci:
+    local-prefixes: github.com/golangci/golangci-lint
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+
+  # [go-critic/go-critic: The most opinionated Go source code linter for code audit.](https://github.com/go-critic/go-critic)
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style # 检查是否有注释并且没用的代码
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+  gocyclo:
+    min-complexity: 40
+  goimports:
+    local-prefixes: github.com/golangci/golangci-lint
+
+  gomnd:
+    settings:
+      mnd:
+        # don't include the "operation" and "assign"
+        # argument会检查函数参数大小，以及是否使用magic number，去掉
+        # condition也会检查是否使用magic number
+        checks: [case,return]
+        ignored-numbers: 0,1,2,3,4,5,6,7,8,9,10,1000
+        ignored-files: magic_.*.go
+        ignored-functions: math.*
+
+  govet: # 对于linter govet，我们手动开启了它的某些扫描规则
+    check-shadowing: true
+    check-unreachable: true
+    check-rangeloops: true
+    check-copylocks: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+    enable:
+      - atomicalign # 也就是fieldalignment，检查struct内存对齐
+    enable-all: false
+    disable:
+      - shadow
+    disable-all: false
+
+  lll:
+    line-length: 300
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+  nolintlint:
+    allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
+    allow-unused: false # report any unused nolint directives
+    require-explanation: false # don't require an explanation for nolint directives
+    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+
+  stylecheck:
+    # Select the Go version to target. The default is '1.13'.
+    go: "1.17"
+    # https://staticcheck.io/docs/options#checks
+    checks: [ "all", "-ST1000", "-ST1003", "-ST1016", "-ST1020", "-ST1021", "-ST1022" ]
+    # https://staticcheck.io/docs/options#dot_import_whitelist
+    dot-import-whitelist:
+      - fmt
+    # https://staticcheck.io/docs/options#initialisms
+    initialisms: [ "ACL", "API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP", "JSON", "QPS", "RAM", "RPC", "SLA", "SMTP", "SQL", "SSH", "TCP", "TLS", "TTL", "UDP", "UI", "GID", "UID", "UUID", "URI", "URL", "UTF8", "VM", "XML", "XMPP", "XSRF", "XSS" ]
+    # https://staticcheck.io/docs/options#http_status_code_whitelist
+    http-status-code-whitelist: [ "200", "400", "404", "500" ]
+
+  revive:
+    # see https://github.com/mgechev/revive#available-rules for details.
+    ignore-generated-header: true
+    severity: warning
+    rules:
+      - name: indent-error-flow
+        severity: warning
+      - name: add-constant
+        severity: warning
+        arguments:
+          - maxLitCount: "5"
+            allowStrs: '""," ","0","1","2","3","4","5","6","7","8","9","10","a","text"'
+            allowInts: "0,1,2,3,4,5,6,7,8,9,10,11,100,1000,512,1024"
+            allowFloats: "0.0,0.,0.5,1.0,1.,2.0,2."
+  # [securego/gosec: Golang security checker](https://github.com/securego/gosec)
+  gosec:
+    excludes:
+      - G107 # http请求时不能使用动态url，关闭
+      - G104 # 部分error不需要处理
+      - G307 # Deferring a method which returns an error
+
+
+issues:
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+
+    - path: pkg/golinters/errcheck.go
+      text: "SA1019: errCfg.Exclude is deprecated: use ExcludeFunctions instead"
+    - path: pkg/commands/run.go
+      text: "SA1019: lsc.Errcheck.Exclude is deprecated: use ExcludeFunctions instead"
+
+
+run:
+  skip-dirs:
+    - test/testdata_etc
+    - internal/cache
+    - internal/renameio
+    - internal/robustio

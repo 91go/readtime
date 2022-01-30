@@ -1,4 +1,4 @@
-package wordscount
+package readtime
 
 import (
 	"bytes"
