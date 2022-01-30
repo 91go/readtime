@@ -1,5 +1,6 @@
 package readtime
 
+// Trans 语言包
 var Trans = map[string]Translation{"bg": {
 	Min:    "мин",
 	Minute: "минута",

@@ -7,7 +7,9 @@
 Get article reading time, support multiple languages
 
 ```markdown
+
 go get github.com/91go/readtime
+
 ```
 
 ## usage
@@ -32,7 +34,7 @@ use `SetTranslation()` to convert language
 
 ```markdown
 
-NewReadTime().ReadFile("./readtime.go").SetTranslation("ca").ToMap()
+NewReadTime().ReadFile("filename").SetTranslation("ca").ToMap()
 
 ```
 

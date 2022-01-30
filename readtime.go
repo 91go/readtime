@@ -10,6 +10,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// ReadTime 阅读时间struct
 type ReadTime struct {
 	WordsCount  WordsCount
 	Translation Translation
@@ -19,6 +20,7 @@ type ReadTime struct {
 	WordsPerMinute int
 }
 
+// WordsCount 字数统计
 type WordsCount struct {
 	Total     int // 总字数 = Words + Puncts
 	Words     int // 只包含字符数
@@ -28,6 +30,7 @@ type WordsCount struct {
 	CodeLines int // 代码行数
 }
 
+// Translation 语言包
 type Translation struct {
 	Min    string
 	Minute string
@@ -37,6 +40,7 @@ type Translation struct {
 }
 
 const (
+	// DefaultWordsPerMinute 默认每分钟阅读字数
 	DefaultWordsPerMinute = 300
 )
 
