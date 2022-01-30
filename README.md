@@ -14,7 +14,7 @@ go get github.com/91go/readtime
 
 ```markdown
 
-NewReadTime().ReadStr("").ToMap()
+NewReadTime().Read("").ToMap()
 
 ```
 
